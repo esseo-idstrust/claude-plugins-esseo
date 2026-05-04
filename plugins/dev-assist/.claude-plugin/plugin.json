@@ -1,0 +1,15 @@
+{
+  "name": "dev-assist",
+  "version": "1.0.0",
+  "description": "개발 워크플로우 보조 - 코드리뷰, 커밋 메시지, PR 작성 자동화",
+  "author": {
+    "name": "esseo-idstrust"
+  },
+  "category": "productivity",
+  "components": {
+    "commands": ["commands/"],
+    "agents": ["agents/"],
+    "skills": ["skills/"],
+    "hooks": "hooks/hooks.json"
+  }
+}

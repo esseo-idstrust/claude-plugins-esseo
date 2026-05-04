@@ -1,0 +1,16 @@
+{
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "command": "bash hooks/scripts/session-start.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": {
+        "tool": "Bash",
+        "input_contains": "git push --force"
+      },
+      "command": "bash hooks/scripts/block-force-push.sh"
+    }
+  ]
+}
