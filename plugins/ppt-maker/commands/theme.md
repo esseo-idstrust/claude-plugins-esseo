@@ -19,32 +19,33 @@
 
    | 테마 이름 | 설명 | 배경 | 주색 | 강조 |
    |-----------|------|------|------|------|
-   | professional-light ⭐ | 화이트 + 네이비/코럴. 범용 발표, 보고서 | #f5f5f5 | #1a2e5a | #e8614d |
-   | dark-elegant | 다크 + 골드. 임팩트 있는 발표, 제품 소개 | #1a1a2e | #c9a84c | #ffffff |
-   | minimal-gray | 라이트 그레이 + 블루. 심플하고 모던한 발표 | #f7f7f7 | #2d3748 | #4299e1 |
-   | warm-sunrise | 크림 + 오렌지. 따뜻하고 친근한 발표 | #fdf8f0 | #d4570a | #8b5e3c |
-   | corporate-blue | 딥블루 + 화이트. 격식 있는 기업 발표 | #1e3a5f | #ffffff | #93c5fd |
+   | daewoong ⭐ | 화이트 + 앰버/오렌지. 상단/하단 오렌지 라인, 기하학 장식 | #FFFFFF | #F09820 | #F5C860 |
+   | professional-light | 화이트 + 네이비/코럴. 깔끔한 기업 발표 | #ffffff | #1a2e5a | #4a6fa5 |
+   | dark-elegant | 다크 + 골드. 임팩트 있는 발표, 제품 소개 | #1a1a2e | #c9a84c | #e8cc80 |
+   | minimal-gray | 라이트 그레이 + 블루. 심플하고 모던한 발표 | #ffffff | #2d3748 | #4a6080 |
+   | corporate-blue | 딥블루 + 라이트블루. 격식 있는 기업 발표 | #1e3a5f | #93c5fd | #bfdbfe |
 
    ⭐ = 기본값
 
 2. `--preview <name>`이 있으면 해당 테마의 색상을 Unicode 블록 문자(█)로 시각화한다:
    ```
    [테마명] 미리보기
-   ████████████████  배경: #XXXXXX
-   ████████          주색: #XXXXXX
-   ████              강조: #XXXXXX
-   
-   사용법: /ppt-maker:create --theme <테마명> <주제>
+   ████████████████████  슬라이드 배경: #XXXXXX
+   ████████████          주색 (라인/강조): #XXXXXX
+   ██████                보조 강조: #XXXXXX
+   ████████████████████  텍스트: #XXXXXX
+
+   적용법: /ppt-maker:create --theme <테마명> <주제>
    ```
 
 3. 인수가 없으면 `--list` 사용을 안내한다.
 
-4. 이 커맨드는 설정을 저장하지 않는다. 테마 적용은 `/ppt-maker:create --theme <name>` 으로 한다.
+4. 이 커맨드는 설정을 영구 저장하지 않는다. 테마 적용은 `/ppt-maker:create --theme <name>` 으로 한다.
 
 ## Examples
 
 ```
 /ppt-maker:theme --list
+/ppt-maker:theme --preview daewoong
 /ppt-maker:theme --preview dark-elegant
-/ppt-maker:theme --preview corporate-blue
 ```
