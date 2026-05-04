@@ -19,6 +19,7 @@ esseo-idstrust의 개인 Claude Code 플러그인 마켓플레이스입니다.
 | 플러그인 | 설명 | 버전 |
 |---------|------|------|
 | [dev-assist](./plugins/dev-assist) | 개발 워크플로우 보조 - 코드리뷰, 커밋, PR 작성 | 1.0.0 |
+| [ppt-maker](./plugins/ppt-maker) | 텍스트 입력으로 HTML 프레젠테이션 자동 생성 - PDF 저장 내장 | 1.0.0 |
 
 ## 로컬 개발
 

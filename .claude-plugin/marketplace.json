@@ -13,6 +13,16 @@
         "name": "esseo-idstrust"
       },
       "category": "productivity"
+    },
+    {
+      "name": "ppt-maker",
+      "source": "./plugins/ppt-maker",
+      "description": "텍스트 입력으로 HTML 프레젠테이션 자동 생성 - PDF 저장 기능 내장",
+      "version": "1.0.0",
+      "author": {
+        "name": "esseo-idstrust"
+      },
+      "category": "productivity"
     }
   ]
 }

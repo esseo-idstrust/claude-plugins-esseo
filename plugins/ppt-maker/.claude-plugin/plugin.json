@@ -1,0 +1,15 @@
+{
+  "name": "ppt-maker",
+  "version": "1.0.0",
+  "description": "텍스트 입력으로 HTML 프레젠테이션 자동 생성 - PDF 저장 기능 내장",
+  "author": {
+    "name": "esseo-idstrust"
+  },
+  "category": "productivity",
+  "components": {
+    "commands": ["commands/"],
+    "agents": ["agents/"],
+    "skills": ["skills/"],
+    "hooks": "hooks/hooks.json"
+  }
+}

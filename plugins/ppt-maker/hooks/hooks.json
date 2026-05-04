@@ -1,0 +1,12 @@
+{
+  "hooks": [
+    {
+      "event": "PostToolUse",
+      "matcher": {
+        "tool": "Write",
+        "output_contains": "output/"
+      },
+      "command": "bash hooks/scripts/post-generate.sh"
+    }
+  ]
+}
