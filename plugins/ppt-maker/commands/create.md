@@ -14,7 +14,7 @@
 - `--theme <name>`: 적용할 테마 이름 (기본값: daewoong).
 - `--slides <count>`: 목표 슬라이드 수 (기본값: 자동, 8-15장).
 - `--lang <ko|en>`: 출력 언어 (기본값: ko).
-- `--company <name>`: 슬라이드 우측 상단에 표시할 회사/로고 텍스트.
+- `--company <name>`: 슬라이드 헤더에 표시할 회사/발표자 텍스트.
 
 ## Instructions
 
@@ -82,7 +82,12 @@
 <style>/* 아래 CSS 전체 인라인 */</style>
 </head>
 <body>
-<button class="btn-pdf" onclick="printSlides()" aria-label="PDF로 저장">PDF로 저장</button>
+<button class="btn-pdf" onclick="printSlides()" aria-label="PDF로 저장">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v13M7 11l5 5 5-5"/>
+    <path d="M3 19h18"/>
+  </svg>
+</button>
 <div class="slideshow">
   <!-- 슬라이드들 (각 .slide 에는 tabindex="0" role="group" aria-label="슬라이드 N") -->
 </div>
@@ -109,7 +114,7 @@
   --primary-light: #F5C860;
   --primary-pale: #FDE9C0;
   --primary-strong: #C97A0E; /* summary-bar strong 등 대비 강화용 */
-  --bg: #E8E8E8;
+  --bg: #FFFFFF;
   --slide-bg: #FFFFFF;
   --text: #2E2E2E;
   --text-body: #555555;
@@ -124,7 +129,7 @@
 :root {
   --primary: #1a2e5a; --primary-light: #4a6fa5; --primary-pale: #dce8f5;
   --primary-strong: #0f1f40;
-  --bg: #f5f5f5; --slide-bg: #fff; --text: #1a1a1a;
+  --bg: #ffffff; --slide-bg: #fff; --text: #1a1a1a;
   --text-body: #444; --text-light: #999; --card-bg: #f8f9fc;
   --font: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
 }
@@ -171,40 +176,50 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 
-/* 슬라이드쇼 */
+/* 슬라이드쇼 컨테이너 — 네비 높이(56px) 제외 */
 .slideshow {
   width: 100vw;
-  height: calc(100vh - 48px); /* 하단 네비 공간 */
+  height: calc(100vh - 56px);
   display: flex; align-items: center; justify-content: center;
 }
 
-/* 슬라이드 ─ 1280×720 고정 캔버스 (JS 가 scale 로 뷰포트에 맞춤) */
+/* 슬라이드 고정 캔버스 1280×720 (JS 가 scale 로 뷰포트에 맞춤) */
 .slide {
   display: none;
   position: relative;
   width: 1280px; height: 720px;
   flex-shrink: 0;
   background: var(--slide-bg);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.22);
   overflow: hidden;
   flex-direction: column;
   transform-origin: center center;
   outline: none;
 }
 .slide.active { display: flex; }
-.slide:focus-visible { box-shadow: 0 8px 40px rgba(0,0,0,0.22), 0 0 0 4px rgba(240,152,32,0.55); }
+.slide:focus-visible { outline: none; }
+
+/* 슬라이드 상단 오렌지 그라데이션 스트립 (title 레이아웃 제외) */
+.slide::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary) 70%, var(--primary-light));
+  z-index: 10;
+  pointer-events: none;
+}
 
 /* 슬라이드 헤더 (title 레이아웃 제외) */
 .slide-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 16px 60px 15px;
-  border-top: 3px solid var(--primary);
+  padding: 14px 60px 13px;
+  background: rgba(240,152,32,0.04);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   flex-shrink: 0;
 }
 .chapter-label { color: var(--primary); font-size: 14px; font-weight: 800; letter-spacing: 0.05em; }
 .chapter-label .crumb-sep { color: var(--text-light); margin: 0 8px; font-weight: 600; }
 .chapter-label .crumb-current { color: var(--text); }
-.logo-text { color: var(--text); font-size: 13px; font-weight: 800; letter-spacing: 0.12em; }
+.logo-text { color: var(--text-light); font-size: 13px; font-weight: 700; letter-spacing: 0.1em; }
 
 /* 슬라이드 바디 (클릭 시 다음 슬라이드로) */
 .slide-body {
@@ -214,8 +229,8 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
   cursor: pointer;
 }
 
-/* 슬라이드 푸터 라인 — 모든 레이아웃에서 일관된 하단 보더 */
-.slide-footer { border-top: 3px solid var(--primary); flex-shrink: 0; height: 0; }
+/* 슬라이드 푸터 — 테두리 없음, 높이 0 */
+.slide-footer { flex-shrink: 0; height: 0; }
 ```
 
 ---
@@ -239,61 +254,112 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 .alert-bar strong { color: var(--primary); font-weight: 800; }
 ```
 
-> 텍스트가 2줄로 줄바꿈되어도 아이콘이 첫 줄 상단에 정렬되어 정렬이 깨지지 않는다.
+> 텍스트가 2줄로 줄바꿈되어도 아이콘이 첫 줄 상단에 정렬된다 (`align-items: flex-start` + `.alert-text { flex: 1 }`).
 
 ---
 
-### CSS — 타이틀 슬라이드 (footer 보더 일관 적용)
+### CSS — 타이틀 슬라이드 (전체 오렌지 배경)
+
+타이틀 슬라이드는 흰 배경 대신 **브랜드 오렌지 그라데이션 전체 배경**을 사용한다.
+상단 스트립(`::before`)은 타이틀에서 숨기고, 유기적 blob 도형으로 깊이감을 연출한다.
 
 ```css
-.deco-wrap {
-  position: absolute; top: 0; right: 0;
-  width: 38%; height: 100%;
-  pointer-events: none; overflow: hidden;
+/* 타이틀 레이아웃 — 전체 오렌지 그라데이션 배경 */
+.layout-title {
+  background: linear-gradient(145deg, #F8B020 0%, #F09820 45%, #D97B0C 100%);
 }
-.deco-a {
-  position: absolute; top: -28%; right: -20%; width: 108%; height: 92%;
-  background: var(--primary-pale); transform: rotate(20deg); border-radius: 10px;
+/* 상단 스트립 숨김 (배경색과 겹침) */
+.layout-title::before { display: none; }
+
+/* 유기적 원형 blob 도형 (배경 깊이감) */
+.blob-bottom {
+  position: absolute;
+  bottom: -40%; left: -14%;
+  width: 80%; height: 84%;
+  background: rgba(175, 100, 0, 0.36);
+  border-radius: 50%;
+  pointer-events: none;
 }
-.deco-b {
-  position: absolute; top: -32%; right: -8%; width: 76%; height: 78%;
-  background: var(--primary-light); transform: rotate(20deg); border-radius: 10px;
-}
-.deco-c {
-  position: absolute; top: -22%; right: 10%; width: 46%; height: 60%;
-  background: var(--primary); transform: rotate(20deg); border-radius: 10px;
-}
-.title-logo {
-  position: absolute; top: 20px; right: 36px;
-  font-size: 13px; font-weight: 800; color: var(--text);
-  letter-spacing: 0.12em; z-index: 10;
+.blob-right {
+  position: absolute;
+  top: -58%; right: -24%;
+  width: 64%; height: 136%;
+  background: rgba(190, 112, 0, 0.26);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-/* title 도 다른 슬라이드와 마찬가지로 상/하단 보더를 갖는다 */
-.layout-title { border-top: 3px solid var(--primary); }
 .layout-title .slide-body {
-  padding: 0 88px; justify-content: center; align-items: flex-start; z-index: 1;
+  padding: 58px 84px 50px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  z-index: 1;
 }
+
+/* 회사명/발표 컨텍스트 레이블 */
 .slide-category {
-  font-size: 16px; color: var(--text-light);
-  font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-  margin-bottom: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.96);
+  border: 1.5px solid rgba(255,255,255,0.38);
+  border-radius: 100px;
+  padding: 7px 22px;
+  margin-bottom: 26px;
 }
+
+/* 메인 타이틀 — 흰색 대형 */
 .layout-title h1 {
-  font-size: 60px; font-weight: 900; color: var(--text);
-  line-height: 1.18; margin-bottom: 26px; word-break: keep-all;
+  font-size: 90px;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1.04;
+  word-break: keep-all;
+  letter-spacing: -0.025em;
+  text-shadow: 0 4px 36px rgba(0,0,0,0.22);
+  margin-bottom: 18px;
 }
-.layout-title h1 em { font-style: normal; color: var(--primary); }
-.title-bullets { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.title-bullets li {
-  font-size: 19px; color: var(--text-body); font-weight: 500;
-  display: flex; align-items: center; gap: 12px;
+.layout-title h1 em { font-style: normal; color: rgba(255,255,255,0.88); }
+
+/* 부제목 */
+.title-subtitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.78);
+  letter-spacing: 0.05em;
 }
-.title-bullets li::before {
-  content: ''; width: 7px; height: 7px;
-  background: var(--primary); border-radius: 50%; flex-shrink: 0;
+.title-subtitle strong { color: #fff; font-weight: 800; }
+
+/* 하단 통계/키포인트 바 */
+.title-stats-bar {
+  width: 100%;
+  display: flex;
+  border-top: 1px solid rgba(255,255,255,0.32);
+  padding-top: 22px;
 }
-.layout-title .slide-subtitle { font-size: 18px; color: var(--text-body); line-height: 1.6; }
+.title-stat {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 7px;
+  padding-right: 32px;
+}
+.title-stat + .title-stat {
+  padding-left: 32px;
+  border-left: 1px solid rgba(255,255,255,0.22);
+}
+.title-stat-num {
+  font-size: 28px; font-weight: 900; color: #fff;
+  line-height: 1; letter-spacing: -0.01em;
+}
+.title-stat-label {
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.68); letter-spacing: 0.04em;
+}
 ```
 
 ---
@@ -331,7 +397,7 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
   color: var(--primary); font-size: 20px; font-weight: 900;
 }
 
-/* 레이블:값 행 테이블 (zebra-stripe 로 가독성 향상) */
+/* 레이블:값 행 테이블 (zebra-stripe) */
 .rows-table { width: 100%; margin-top: 12px; border-collapse: collapse; }
 .rows-table tr:nth-child(even) td { background: rgba(240,152,32,0.04); }
 .rows-table td {
@@ -356,21 +422,20 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 
 ---
 
-### CSS — cards 슬라이드 (2~4장 카드, 견고한 flex 분배)
+### CSS — cards 슬라이드
 
 ```css
-.layout-cards .slide-body { justify-content: flex-start; padding-top: 22px; }
+.layout-cards .slide-body { justify-content: flex-start; padding-top: 20px; }
 .layout-cards h2 {
-  font-size: 34px; font-weight: 800; color: var(--text);
-  margin-bottom: 18px; flex-shrink: 0; line-height: 1.25;
+  font-size: 38px; font-weight: 900; color: var(--text);
+  margin-bottom: 20px; flex-shrink: 0; line-height: 1.2;
 }
 .cards-row {
   display: flex; align-items: stretch; gap: 14px;
   flex: 1; min-height: 0;
 }
 .card-item {
-  flex: 1 1 0;          /* 카드 수가 2개여도 균등 분배 */
-  min-width: 0;          /* flex 아이템 overflow 방지 */
+  flex: 1 1 0; min-width: 0;
   background: var(--card-bg);
   border: 1.5px solid rgba(240,152,32,0.18);
   border-left: 5px solid var(--primary);
@@ -382,21 +447,38 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
   width: 28px; color: var(--primary); font-size: 26px;
   flex-shrink: 0; opacity: 0.55;
 }
+
+/* 카드 단계/카테고리 레이블 — 오렌지 필 배지 */
 .card-label {
-  font-size: 12px; font-weight: 800; letter-spacing: 0.1em;
-  color: var(--text-light); text-transform: uppercase; margin-bottom: 6px;
+  display: inline-block;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+  color: var(--primary); text-transform: uppercase;
+  background: var(--primary-pale);
+  border-radius: 100px; padding: 3px 12px;
+  margin-bottom: 12px;
 }
+
+/* 카드 아이콘 배지 — 이모지를 오렌지 박스에 담음 */
+.card-icon-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  background: var(--primary-pale);
+  border-radius: 10px; font-size: 20px;
+  flex-shrink: 0;
+}
+
 .card-title {
-  font-size: 22px; font-weight: 900; color: var(--primary);
+  font-size: 21px; font-weight: 900; color: var(--text);
   margin-bottom: 16px;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
   padding-bottom: 12px;
   border-bottom: 1.5px solid rgba(240,152,32,0.2);
 }
+
 /* card_list (개조식 불릿) — body 보다 우선 사용 */
 .card-list { list-style: none; display: flex; flex-direction: column; gap: 9px; flex: 1; }
 .card-list li {
-  font-size: 17px; color: var(--text-body); font-weight: 600;
+  font-size: 18px; color: var(--text-body); font-weight: 600;
   line-height: 1.5; display: flex; align-items: flex-start; gap: 10px;
   word-break: keep-all;
 }
@@ -408,6 +490,10 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 /* 폴백: card_list 가 없을 때 body 텍스트 */
 .card-body { font-size: 15px; color: var(--text-body); line-height: 1.75; flex: 1; }
 ```
+
+> **`card_list` vs `body`**:
+> - **`card_list` (배열) — 기본**: 짧은 개념·단계·특징을 나열할 때. 한 슬라이드 내 모든 카드가 동일 형식이어야 한다.
+> - **`body` (문자열) — 예외**: 한두 문장의 서술형 정의일 때만 사용.
 
 ---
 
@@ -478,10 +564,10 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
   border: 1.5px solid rgba(240,152,32,0.22);
   border-radius: 9px; padding: 14px 24px;
   margin-top: 18px;
-  font-size: 17px; color: var(--text-body); line-height: 1.65;
-  flex-shrink: 0; word-break: keep-all;
+  font-size: 18px; color: var(--text-body); line-height: 1.6;
+  flex-shrink: 0; font-weight: 500; word-break: keep-all;
 }
-/* 대비 강화: --primary-strong (어두운 변형) 사용 */
+/* 대비 강화: --primary-strong 사용 */
 .summary-bar strong { color: var(--primary-strong); font-weight: 900; }
 ```
 
@@ -490,42 +576,47 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 ### CSS — PDF 버튼, 네비게이션, 인쇄
 
 ```css
-/* PDF 버튼 */
+/* PDF 다운로드 아이콘 버튼 */
 .btn-pdf {
-  position: fixed; top: 14px; right: 20px; z-index: 9999;
+  position: fixed; top: 12px; right: 18px; z-index: 9999;
   background: var(--primary); color: #fff; border: none;
-  border-radius: 7px; padding: 10px 22px;
-  font-size: 14px; font-weight: 800; cursor: pointer;
-  font-family: var(--font); box-shadow: 0 3px 12px rgba(240,152,32,0.35);
+  border-radius: 8px;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(240,152,32,0.38);
   transition: opacity 0.15s, transform 0.1s;
-  letter-spacing: 0.02em;
 }
 .btn-pdf:hover { opacity: 0.85; transform: translateY(-1px); }
 .btn-pdf:active { transform: translateY(0); }
 .btn-pdf:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
-/* 하단 네비게이션 바 */
+/* 하단 네비게이션 바 — 높이 56px, 흰 배경, 상단 오렌지 구분선 */
 .nav-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; height: 48px;
+  position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 56px; background: var(--bg);
+  padding: 0 48px;
+  background: #FFFFFF;
+  border-top: 2px solid var(--primary);
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
 }
 .nav-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-light); font-size: 14px; font-weight: 700;
-  font-family: var(--font); padding: 8px 16px; border-radius: 5px;
-  transition: color 0.15s, background 0.15s; letter-spacing: 0.02em;
+  background: none; border: 2px solid transparent; cursor: pointer;
+  color: var(--text-body); font-size: 15px; font-weight: 800;
+  font-family: var(--font); padding: 8px 20px; border-radius: 0;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  letter-spacing: 0.03em;
 }
-.nav-btn:hover { color: var(--primary); background: rgba(240,152,32,0.1); }
+.nav-btn:hover { color: var(--primary); background: rgba(240,152,32,0.08); border-color: rgba(240,152,32,0.35); }
 .nav-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-/* 페이지 카운터: zero-padded 01 / 02 */
+/* 페이지 카운터: zero-padded 01 / 02, 현재 페이지는 오렌지 대형 */
 .nav-counter {
-  font-size: 14px; color: var(--text-light);
-  font-weight: 700; font-family: var(--font);
-  letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
+  font-size: 17px; color: var(--text);
+  font-weight: 800; font-family: var(--font);
+  letter-spacing: 0.1em; font-variant-numeric: tabular-nums;
 }
-.nav-counter .nav-current { color: var(--primary); }
+.nav-counter .nav-current { color: var(--primary); font-size: 20px; }
 
 /* 인쇄 (16:9 비율 297×167mm) — JS 인라인 transform 을 !important 로 무력화 */
 @media print {
@@ -546,7 +637,7 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
     width: 297mm !important;
     height: 167mm !important;
     max-width: none !important;
-    transform: none !important;        /* ★ JS 인라인 transform 덮어쓰기 */
+    transform: none !important;
     box-shadow: none !important;
     page-break-before: always;
     page-break-inside: avoid;
@@ -568,7 +659,7 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 ```html
 <div class="alert-bar">
   <span class="alert-icon">⚡</span>
-  <span class="alert-text">{alert_bar 텍스트. **굵게** 표시할 부분은 <strong>으로 감쌈}</span>
+  <span class="alert-text">{alert_bar 텍스트. 강조 부분은 <strong>으로 감쌈}</span>
 </div>
 ```
 
@@ -591,7 +682,6 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
   상위챕터<span class="crumb-sep">›</span><span class="crumb-current">하위챕터</span>
 </span>
 ```
-구분자가 없으면 단순 텍스트로 렌더한다.
 
 **example 박스 렌더링**:
 ```html
@@ -600,19 +690,40 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 
 ---
 
-**title 슬라이드** (footer 도 다른 슬라이드와 동일한 보더 유지):
+**title 슬라이드** — 전체 오렌지 배경 + 원형 blob + 하단 통계 바:
 ```html
 <div class="slide layout-title" tabindex="0" role="group" aria-label="슬라이드 1">
-  <div class="deco-wrap"><div class="deco-a"></div><div class="deco-b"></div><div class="deco-c"></div></div>
-  <div class="title-logo">{company 또는 빈문자열}</div>
+  <div class="blob-bottom"></div>
+  <div class="blob-right"></div>
   <div class="slide-body">
-    <p class="slide-category">{subtitle}</p>
-    <h1>{title}</h1>
-    {points 있으면: <ul class="title-bullets"><li>...</li></ul>}
+    <div>
+      <!-- subtitle → 상단 필 레이블 (회사명·컨텍스트 태그) -->
+      <p class="slide-category">{subtitle}</p>
+      <h1>{title}</h1>
+      <!-- example → h1 아래 부제목 한 줄 (날짜·발표자·맥락) -->
+      {example 있으면: <p class="title-subtitle">{example (강조는 <strong>으로)}</p>}
+    </div>
+    <!-- points → 하단 통계 바 (없으면 전체 블록 생략)
+         각 point 는 "수치|레이블" 형식. "|" 기준으로 분리하여 num/label 에 할당 -->
+    {points 배열이 비어있지 않으면:
+    <div class="title-stats-bar">
+      <div class="title-stat">
+        <span class="title-stat-num">{point.split("|")[0]}</span>
+        <span class="title-stat-label">{point.split("|")[1]}</span>
+      </div>
+      <!-- 각 point 마다 반복 -->
+    </div>
+    }
   </div>
   <div class="slide-footer"></div>
 </div>
 ```
+
+> **title 슬라이드 필드 요약**:
+> - `subtitle` → `.slide-category` 필 레이블 (회사명 또는 컨텍스트)
+> - `title` → 대형 흰색 h1
+> - `example` → h1 아래 부제목 줄 (날짜·발표자)
+> - `points` → 하단 통계 바. 각 항목 `"수치|레이블"` 형식. 3~4개 권장. 없으면 생략.
 
 **section 슬라이드:**
 ```html
@@ -646,7 +757,7 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 </div>
 ```
 
-**cards 슬라이드** (2-4개 카드, 화살표 연결 — `card_list` 우선, 없으면 `body`):
+**cards 슬라이드** (2-4개 카드, `card_list` 우선):
 ```html
 <div class="slide layout-cards" tabindex="0" role="group" aria-label="슬라이드 N">
   <div class="slide-header">
@@ -659,7 +770,10 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
     <div class="cards-row">
       <div class="card-item">
         {card.label 있으면: <div class="card-label">{label}</div>}
-        <div class="card-title">{icon} {card.title}</div>
+        <div class="card-title">
+          {card.icon 있으면: <span class="card-icon-badge">{icon}</span>}
+          {card.title}
+        </div>
         {card.card_list 있으면:
           <ul class="card-list"><li>...</li></ul>
          else card.body 있으면:
@@ -676,11 +790,7 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 </div>
 ```
 
-> **`card_list` vs `body` 가이드**:
-> - **`card_list` (배열) — 권장 기본**: 카드가 2~4개의 짧은 개념(특징, 단계, 행동)을 담을 때. 시각적으로 스캔이 빠르고 슬라이드 일관성이 높다.
-> - **`body` (문자열) — 예외**: 카드 내용이 한두 문장의 서술형 정의이거나, 자연어 설명이 더 적합한 경우. 한 슬라이드 내 모든 카드가 같은 형식(전부 `card_list` 또는 전부 `body`)이어야 한다.
-
-**two-column 슬라이드** (rows + example 지원, rows 는 zebra-stripe 적용됨):
+**two-column 슬라이드** (rows + example 지원):
 ```html
 <div class="slide layout-two-column" tabindex="0" role="group" aria-label="슬라이드 N">
   <div class="slide-header">
@@ -730,16 +840,16 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 **closing 슬라이드:**
 ```html
 <div class="slide layout-closing" tabindex="0" role="group" aria-label="슬라이드 N">
-  <div class="deco-wrap"><div class="deco-a"></div><div class="deco-b"></div><div class="deco-c"></div></div>
-  <div class="slide-header" style="border-top-color:transparent;">
-    <span></span><span class="logo-text">{company}</span>
+  <div class="slide-header">
+    <span></span>
+    <span class="logo-text">{company}</span>
   </div>
   <div class="slide-body">
     <div class="closing-bar"></div>
     <h1>{title}</h1>
     <p class="slide-subtitle">{subtitle}</p>
   </div>
-  <div class="slide-footer" style="border-top-color:transparent;"></div>
+  <div class="slide-footer"></div>
 </div>
 ```
 
@@ -748,7 +858,7 @@ body { background: var(--bg); font-family: var(--font); overflow: hidden; }
 ### JavaScript — 네비게이션 / 인쇄 / 클릭 진행 / 접근성
 
 > **반드시 `printSlides()` 패턴을 사용한다** — `window.print()` 직접 호출 시 인쇄에 활성 슬라이드 1장만 포함된다.
-> `afterprint` 핸들러는 모든 인라인 `transform` 과 `display` 를 비우고 `scaleSlides()` → `show(cur)` 로 정확히 원상 복귀시킨다.
+> 네비게이션 높이는 **56px** 이다 (`scaleSlides` 의 `vh - 56` 과 `.slideshow { height: calc(100vh - 56px) }` 일치).
 
 ```javascript
 const slides   = document.querySelectorAll('.slide');
@@ -756,10 +866,10 @@ const counter  = document.getElementById('nav-counter');
 const totalStr = String(slides.length).padStart(2, '0');
 let cur = 0;
 
-/* 뷰포트에 맞게 1280×720 캔버스를 scale */
+/* 뷰포트에 맞게 1280×720 캔버스를 scale — 네비 높이 56px 제외 */
 function scaleSlides() {
   const vw = window.innerWidth;
-  const vh = window.innerHeight - 48;
+  const vh = window.innerHeight - 56;
   const scale = Math.min(vw / 1280, vh / 720) * 0.96;
   slides.forEach(s => { s.style.transform = `scale(${scale})`; });
 }
@@ -834,13 +944,13 @@ show(0);
    - 생성된 파일 절대 경로 + `open {경로}` 명령
    - 슬라이드 수, 테마명
    - 키 안내: 화살표키/스페이스/PageUp·PageDown 이동, 슬라이드 본문 클릭 시 다음, 하단 ← 이전 / 다음 → 버튼
-   - PDF 버튼 안내 (`printSlides()` 가 모든 슬라이드를 인쇄에 포함시킴)
+   - 우측 상단 다운로드 아이콘 클릭 시 PDF 저장
 
 ## Examples
 
 ```
 /ppt-maker:create 인공지능의 미래
-/ppt-maker:create --company "Daewoong" "Q1 성과 보고"
+/ppt-maker:create --company "대웅제약" "2026 상반기 AI 혁신 전략"
 /ppt-maker:create --theme dark-elegant --slides 10 "마이크로서비스 전환 계획"
 /ppt-maker:create --company "ESSEO" --lang en "Introduction to Machine Learning"
 ```
